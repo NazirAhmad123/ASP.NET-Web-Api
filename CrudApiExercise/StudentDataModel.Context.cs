@@ -26,5 +26,6 @@ namespace CrudApiExercise
         }
     
         public virtual DbSet<Student> Students { get; set; }
+        public virtual DbSet<User> Users { get; set; }
     }
 }

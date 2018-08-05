@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Web.Http;
 
 namespace CrudApiExercise.Controllers
@@ -20,22 +21,23 @@ namespace CrudApiExercise.Controllers
 
 
         // Web Api query string parameter.
-        [HttpGet]
-        public HttpResponseMessage GetByGender(string gender)
+        [BasicAuthentication]
+        public HttpResponseMessage Get(string gender = "All")
         {
-            using(var db = new ApiDemoEntities())
+            string username = Thread.CurrentPrincipal.Identity.Name;
+
+            using (var entities = new ApiDemoEntities())
             {
-                switch (gender.ToLower())
+                switch (username.ToLower())
                 {
-                    case "all":
-                        return Request.CreateResponse(HttpStatusCode.OK, db.Students.ToList());
                     case "male":
-                        return Request.CreateResponse(HttpStatusCode.OK, db.Students.Where(s => s.Gender.ToLower() == "male").ToList());
+                        return Request.CreateResponse(HttpStatusCode.OK,
+                            entities.Students.Where(e => e.Gender.ToLower() == "male").ToList());
                     case "female":
-                        return Request.CreateResponse(HttpStatusCode.OK, db.Students.Where(s => s.Gender.ToLower() == "female").ToList());
+                        return Request.CreateResponse(HttpStatusCode.OK,
+                            entities.Students.Where(e => e.Gender.ToLower() == "female").ToList());
                     default:
-                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest,
-                            " Value for gender must be All, Male or Female. " + gender + " is not valid.");
+                        return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
             }
         }
